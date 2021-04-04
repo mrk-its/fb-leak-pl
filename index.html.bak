@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="utf-8"/>
+        <style>
+            #loading {
+                font-weight: bold;
+            }
+            body:not(.loading) #loading {
+                display: none;
+            }
+            .loading #form {
+                display: none;
+            }
+        </style>
+        <script src="bloomfilter.js"></script>
+        <script>
+            var bloom = null;
+            fetch("bloomfilter.dat").then(r => r.arrayBuffer()).then( buffer => {
+                bloom = new BloomFilter(new Uint32Array(buffer), 20)
+                document.body.className = ""
+                console.log(bloom);
+            })
+
+            function check() {
+                let status = document.querySelector("#status");
+                let number = document.querySelector("#number").value;
+                if(bloom.test(number)) {
+                    status.textContent = "Znaleziony";
+                    status.style = "color: red; font-weight: bold";
+                } else {
+                    status.textContent = "Brak";
+                    status.style = "color: green";
+                }
+            }
+        </script>
+    </head>
+<body class="loading">
+    <p>
+        Strona pozwala na sprawdzenie czy dany numer telefonu znajduje się w ostatnim
+        <a href="https://niebezpiecznik.pl/post/facebook-wyciek-dane-533-milionow-uzytkownikow/">wycieku danych z Facebook'a</a>.
+        Do tego celu wykorzystywany jest <a href="https://pl.wikipedia.org/wiki/Filtr_Blooma">Filtr Blooma</a>
+        o rozmiarze 10MB (<a href="https://hur.st/bloomfilter/?n=2.7M&p=&m=80000000&k=20">parametry</a>)
+        Sprawdzenie następuje w przeglądarce, numer telefonu nie jest nigdzie wysyłany.
+    </p>
+    <div id="loading">Ładowanie danych...</div>
+    <div id="form">
+        Numer telefonu (z prefiksem 48): <input id="number" type="text">
+        <button onclick="check()">Sprawdź</button>
+        <p id="status"></p>
+    </div>
+    <p>
+        by <a href="https://github.com/mrk-its/">mrk</a>
+    </p>
+    <img src="https://atari.ha.sed.pl/pixel.png" width="1" height="1" />
+</body>
+</html>
